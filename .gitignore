@@ -1,0 +1,12 @@
+# Node dependencies
+node_modules/
+dscr-app/node_modules/
+
+# Runtime data
+*.log
+dscr-app/backend/data/
+
+# OS/editor artifacts
+.DS_Store
+.vscode/
+.idea/
