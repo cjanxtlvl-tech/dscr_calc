@@ -3,6 +3,16 @@ const leadForm = document.getElementById("lead-form");
 const calculatorResult = document.getElementById("calculator-result");
 const leadStatus = document.getElementById("lead-status");
 const submittedAtInput = document.getElementById("submittedAt");
+const panelDscr = document.getElementById("panel-dscr");
+const panelDebt = document.getElementById("panel-debt");
+const panelRent = document.getElementById("panel-rent");
+const panelBand = document.getElementById("panel-band");
+const donutPi = document.getElementById("donut-pi");
+const donutTax = document.getElementById("donut-tax");
+const donutIns = document.getElementById("donut-ins");
+const legendPi = document.getElementById("legend-pi");
+const legendTax = document.getElementById("legend-tax");
+const legendIns = document.getElementById("legend-ins");
 
 function setSubmissionTimestamp() {
   if (submittedAtInput) {
@@ -55,6 +65,36 @@ function bandCopy(band) {
   return "Weak";
 }
 
+function updateDonutBreakdown(components, totalDebt) {
+  const circumference = 2 * Math.PI * 54;
+  const safeTotal = totalDebt > 0 ? totalDebt : 1;
+
+  const piRatio = components.principalInterest / safeTotal;
+  const taxRatio = components.propertyTaxes / safeTotal;
+  const insRatio = components.insuranceHoaOther / safeTotal;
+
+  const piLen = Math.max(0, piRatio * circumference);
+  const taxLen = Math.max(0, taxRatio * circumference);
+  const insLen = Math.max(0, insRatio * circumference);
+
+  donutPi.style.strokeDasharray = `${piLen} ${circumference - piLen}`;
+  donutPi.style.strokeDashoffset = "0";
+
+  donutTax.style.strokeDasharray = `${taxLen} ${circumference - taxLen}`;
+  donutTax.style.strokeDashoffset = `${-piLen}`;
+
+  donutIns.style.strokeDasharray = `${insLen} ${circumference - insLen}`;
+  donutIns.style.strokeDashoffset = `${-(piLen + taxLen)}`;
+
+  const piPct = totalDebt > 0 ? (piRatio * 100).toFixed(1) : "0.0";
+  const taxPct = totalDebt > 0 ? (taxRatio * 100).toFixed(1) : "0.0";
+  const insPct = totalDebt > 0 ? (insRatio * 100).toFixed(1) : "0.0";
+
+  legendPi.textContent = `${formatMoney(components.principalInterest)} · ${piPct}%`;
+  legendTax.textContent = `${formatMoney(components.propertyTaxes)} · ${taxPct}%`;
+  legendIns.textContent = `${formatMoney(components.insuranceHoaOther)} · ${insPct}%`;
+}
+
 function onCalculatorStart() {
   if (!analyticsState.calculatorStarted) {
     analyticsState.calculatorStarted = true;
@@ -64,30 +104,21 @@ function onCalculatorStart() {
 
 calculatorForm.addEventListener("focusin", onCalculatorStart, { once: false });
 
-calculatorForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(calculatorForm);
-  const values = {
-    rentalIncome: calculatorCore.toPositiveNumber(formData.get("rentalIncome")),
-    principalInterest: calculatorCore.toPositiveNumber(formData.get("principalInterest")),
-    propertyTaxes: calculatorCore.toPositiveNumber(formData.get("propertyTaxes")),
-    insurance: calculatorCore.toPositiveNumber(formData.get("insurance")),
-    hoa: calculatorCore.toPositiveNumber(formData.get("hoa")),
-    otherExpenses: calculatorCore.toPositiveNumber(formData.get("otherExpenses"))
+function renderCalculator(values, result) {
+  const components = {
+    principalInterest: values.principalInterest,
+    propertyTaxes: values.propertyTaxes,
+    insuranceHoaOther: values.insurance + values.hoa + values.otherExpenses
   };
 
-  const result = calculatorCore.calculateDscr(values);
-
-  pushEvent("calculator_submit", {
-    rentalIncome: values.rentalIncome,
-    debtService: Number(result.debtService.toFixed(2)),
-    band: result.band
-  });
-
-  calculatorResult.classList.remove("hidden");
+  panelDebt.textContent = formatMoney(result.debtService);
+  panelRent.textContent = formatMoney(values.rentalIncome);
+  updateDonutBreakdown(components, result.debtService);
 
   if (result.message) {
+    panelDscr.textContent = "0.00";
+    panelBand.textContent = "Weak";
+    calculatorResult.classList.remove("hidden");
     calculatorResult.innerHTML = `<span class="badge weak">Weak</span><p>${result.message}</p>`;
     return;
   }
@@ -95,12 +126,54 @@ calculatorForm.addEventListener("submit", (event) => {
   const dscrDisplay = result.dscr.toFixed(2);
   const bandLabel = bandCopy(result.band);
 
+  panelDscr.textContent = dscrDisplay;
+  panelBand.textContent = bandLabel;
+
+  calculatorResult.classList.remove("hidden");
   calculatorResult.innerHTML = `
     <p>Total Debt Service: <strong>${formatMoney(result.debtService)}</strong></p>
     <p>DSCR: <strong>${dscrDisplay}</strong></p>
     <p>Qualification: <span class="badge ${result.band}">${bandLabel}</span></p>
   `;
+}
+
+function collectCalculatorValues() {
+  const formData = new FormData(calculatorForm);
+  return {
+    rentalIncome: calculatorCore.toPositiveNumber(formData.get("rentalIncome")),
+    principalInterest: calculatorCore.toPositiveNumber(formData.get("principalInterest")),
+    propertyTaxes: calculatorCore.toPositiveNumber(formData.get("propertyTaxes")),
+    insurance: calculatorCore.toPositiveNumber(formData.get("insurance")),
+    hoa: calculatorCore.toPositiveNumber(formData.get("hoa")),
+    otherExpenses: calculatorCore.toPositiveNumber(formData.get("otherExpenses"))
+  };
+}
+
+function runCalculator(emitAnalytics) {
+  const values = collectCalculatorValues();
+  const result = calculatorCore.calculateDscr(values);
+
+  if (emitAnalytics) {
+    pushEvent("calculator_submit", {
+      rentalIncome: values.rentalIncome,
+      debtService: Number(result.debtService.toFixed(2)),
+      band: result.band
+    });
+  }
+
+  renderCalculator(values, result);
+}
+
+calculatorForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  runCalculator(true);
 });
+
+calculatorForm.querySelectorAll("input").forEach((input) => {
+  input.addEventListener("input", () => runCalculator(false));
+});
+
+runCalculator(false);
 
 async function submitLead(payload) {
   const response = await fetch("/api/leads", {

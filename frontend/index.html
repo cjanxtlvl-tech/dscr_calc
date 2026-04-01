@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeeCasa DSCR Loan Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-shape background-shape--one"></div>
+    <div class="background-shape background-shape--two"></div>
+
+    <main class="page-wrap">
+      <div class="top-nav-strip" aria-label="VeeCasa calculator navigation">
+        <div class="top-nav-brand">VeeCasa</div>
+        <nav class="top-nav-links">
+          <a href="#">Home</a>
+          <a href="#">Products</a>
+          <a href="#">Rates</a>
+          <a href="#">How It Works</a>
+          <a href="#">FAQ</a>
+        </nav>
+        <button class="top-nav-cta" type="button">Start My Quote →</button>
+      </div>
+
+      <header class="hero">
+        <p class="eyebrow">DSCR Calcultor</p>
+        <h1>Estimate Your <span class="headline-accent">DSCR</span></h1>
+        <p>
+          Estimate debt service coverage quickly, understand qualification strength,
+          and request tailored loan options for your investment strategy.
+        </p>
+      </header>
+
+      <section class="calculator-shell" aria-labelledby="calculator-title">
+        <div class="calculator-inputs card">
+          <h2 id="calculator-title">Loan Details</h2>
+          <form id="calculator-form" novalidate>
+            <div class="grid two-col">
+              <label>
+                Monthly Rental Income
+                <input type="number" name="rentalIncome" min="0" step="0.01" required />
+              </label>
+              <label>
+                Monthly Principal &amp; Interest
+                <input type="number" name="principalInterest" min="0" step="0.01" required />
+              </label>
+              <label>
+                Property Taxes
+                <input type="number" name="propertyTaxes" min="0" step="0.01" value="0" />
+              </label>
+              <label>
+                Insurance
+                <input type="number" name="insurance" min="0" step="0.01" value="0" />
+              </label>
+              <label>
+                HOA
+                <input type="number" name="hoa" min="0" step="0.01" value="0" />
+              </label>
+              <label>
+                Other Expenses
+                <input type="number" name="otherExpenses" min="0" step="0.01" value="0" />
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">Calculate DSCR →</button>
+          </form>
+          <div id="calculator-result" class="result hidden" aria-live="polite"></div>
+        </div>
+
+        <aside class="summary-panel" aria-label="DSCR summary panel">
+          <div class="summary-kicker">DSCR Snapshot</div>
+          <div class="summary-main" id="panel-dscr">0.00</div>
+          <p class="summary-sub">Debt Service Coverage Ratio</p>
+          <div class="summary-separator" aria-hidden="true"></div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span>Total Debt Service</span>
+              <strong id="panel-debt">$0</strong>
+            </div>
+            <div class="summary-item">
+              <span>Monthly Rent</span>
+              <strong id="panel-rent">$0</strong>
+            </div>
+            <div class="summary-item summary-item--full">
+              <span>Qualification</span>
+              <strong id="panel-band">Weak</strong>
+            </div>
+          </div>
+
+          <div class="summary-separator" aria-hidden="true"></div>
+          <div class="donut-section" aria-label="Debt service breakdown">
+            <div class="donut-chart-wrap">
+              <svg class="donut-chart" viewBox="0 0 160 160" role="img" aria-label="Payment composition chart">
+                <circle class="donut-bg" cx="80" cy="80" r="54"></circle>
+                <circle id="donut-pi" class="donut-segment donut-segment--pi" cx="80" cy="80" r="54"></circle>
+                <circle id="donut-tax" class="donut-segment donut-segment--tax" cx="80" cy="80" r="54"></circle>
+                <circle id="donut-ins" class="donut-segment donut-segment--ins" cx="80" cy="80" r="54"></circle>
+              </svg>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-row">
+                <span><i class="legend-dot legend-dot--pi"></i>Principal &amp; Interest</span>
+                <strong id="legend-pi">$0 · 0%</strong>
+              </div>
+              <div class="legend-row">
+                <span><i class="legend-dot legend-dot--tax"></i>Property Taxes</span>
+                <strong id="legend-tax">$0 · 0%</strong>
+              </div>
+              <div class="legend-row">
+                <span><i class="legend-dot legend-dot--ins"></i>Insurance + HOA + Other</span>
+                <strong id="legend-ins">$0 · 0%</strong>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="card" aria-labelledby="lead-title">
+        <h2 id="lead-title">2. Get Financing Options</h2>
+        <p class="section-description">
+          Submit your details and VeeCasa will follow up with DSCR-focused loan pathways.
+        </p>
+
+        <form id="lead-form" novalidate>
+          <input type="hidden" name="submittedAt" id="submittedAt" />
+          <input
+            type="text"
+            name="website"
+            id="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            class="honeypot"
+          />
+          <div class="grid two-col">
+            <label>
+              First Name
+              <input type="text" name="firstName" required />
+            </label>
+            <label>
+              Last Name
+              <input type="text" name="lastName" required />
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" required />
+            </label>
+            <label>
+              Phone
+              <input type="tel" name="phone" required />
+            </label>
+            <label>
+              Purchase or Refinance
+              <select name="loanPurpose" required>
+                <option value="">Select one</option>
+                <option value="purchase">Purchase</option>
+                <option value="refinance">Refinance</option>
+              </select>
+            </label>
+            <label>
+              Property Type
+              <select name="propertyType" required>
+                <option value="">Select one</option>
+                <option value="single-family">Single Family</option>
+                <option value="multi-family">Multi Family</option>
+                <option value="condo">Condo</option>
+                <option value="townhome">Townhome</option>
+                <option value="mixed-use">Mixed Use</option>
+              </select>
+            </label>
+            <label>
+              Credit Score Range
+              <select name="creditScoreRange" required>
+                <option value="">Select one</option>
+                <option value="760+">760+</option>
+                <option value="720-759">720-759</option>
+                <option value="680-719">680-719</option>
+                <option value="640-679">640-679</option>
+                <option value="below-640">Below 640</option>
+              </select>
+            </label>
+            <label>
+              Entity
+              <select name="entityType" required>
+                <option value="">Select one</option>
+                <option value="individual">Individual</option>
+                <option value="llc">LLC</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn btn-accent" type="submit">Submit Lead</button>
+        </form>
+
+        <div id="lead-status" class="status" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="calc.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
